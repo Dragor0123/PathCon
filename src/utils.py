@@ -101,3 +101,45 @@ def get_path_dict_and_length(train_paths, valid_paths, test_paths, null_relation
                 n_paths += 1
     return path2id, id2path, id2length
 
+
+def one_hot_path_id(train_paths, valid_paths, test_paths, path_dict):
+    res = []
+    for data in (train_paths, valid_paths, test_paths):
+        bop_list = []   # bag of paths
+        for paths in data:
+            bop_list.append([path_dict[tuple(path)] for path in paths])
+        res.append(bop_list)
+
+    return [get_sparse_feature_matrix(bop_list, len(path_dict)) for bop_list in res]
+
+
+def sample_paths(train_paths, valid_paths, test_paths, path_dict, path_samples):
+    res = []
+    for data in [train_paths, valid_paths, test_paths]:
+        path_ids_for_data = []
+        for paths in data:
+            path_ids_for_triplet = [path_dict[tuple(path)] for path in paths]
+            sampled_path_ids_for_triplet = np.random.choice(
+                path_ids_for_triplet, size=path_samples, replace=len(path_ids_for_triplet) < path_samples)
+            path_ids_for_data.append(sampled_path_ids_for_triplet)
+
+        path_ids_for_data = np.array(path_ids_for_data, dtype=np.int32)
+        res.append(path_ids_for_data)
+    return res
+
+
+def get_sparse_feature_matrix(non_zeros, n_cols):
+    features = sp.lil_matrix((len(non_zeros), n_cols), dtype=np.float64)
+    for i in range(len(non_zeros)):
+        for j in non_zeros[i]:
+            features[i, j] = +1.0
+    return features
+
+
+def sparse_to_tuple(sparse_matrix):
+    if not sp.isspmatrix_coo(sparse_matrix):
+        sparse_matrix = sparse_matrix.tocoo()
+    indices = np.vstack((sparse_matrix.row, sparse_matrix.col)).transpose()
+    values = sparse_matrix.data
+    shape = sparse_matrix.shape
+    return indices, values, shape
