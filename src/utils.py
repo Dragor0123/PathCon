@@ -71,3 +71,17 @@ def bfs(head, tails, e2re, max_path_len):
     return ht2paths
 
 
+def count_paths(triplets, ht2paths, train_set):
+    res = []
+
+    for head, tail, relation in triplets:
+        path_set = ht2paths[(head, tail)]
+        if (tail, head, relation) in train_set:
+            path_list = list(path_set)
+        else:
+            path_list = list(path_set - {tuple([relation])})
+        res.append([list(i) for i in path_list])
+
+    return res
+
+
