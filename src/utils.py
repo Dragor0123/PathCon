@@ -85,3 +85,19 @@ def count_paths(triplets, ht2paths, train_set):
     return res
 
 
+def get_path_dict_and_length(train_paths, valid_paths, test_paths, null_relation, max_path_len):
+    path2id = {}
+    id2path = []
+    id2length = []
+    n_paths = 0
+
+    for paths_of_triplet in train_paths + valid_paths + test_paths:
+        for path in paths_of_triplet:
+            path_tuple = tuple(path)
+            if path_tuple not in path2id:
+                path2id[path_tuple] = n_paths
+                id2length.append(len(path))
+                id2path.append(path + [null_relation] * (max_path_len - len(path)))     # padding
+                n_paths += 1
+    return path2id, id2path, id2length
+
