@@ -12,3 +12,9 @@ cuda == 11.3
 numpy == 1.22.3  
 scipy == 1.7.3  
 sklearn == 1.1.1
+
+This code is just a copy of the code below to study.
+I will revise or change something for research one day.
+Original source:  
+tensorflow - https://github.com/hwwang55/PathCon  
+pytorch - https://github.com/hyren/PathCon  
