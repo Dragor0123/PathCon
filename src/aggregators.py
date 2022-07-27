@@ -32,7 +32,8 @@ class MeanAggregator:
 
 
 class ConcatAggregator(Aggregator):
-    def __init__(self, batch_size: int, input_dim: int, output_dim: int, act=lambda x:x, self_included: bool=True):
+    def __init__(self, batch_size: int, input_dim: int, output_dim: int,
+                 act=lambda x:x, self_included: bool=True):
         super(ConcatAggregator, self).__init__()
 
         multiplier = 3 if self_included else 2
