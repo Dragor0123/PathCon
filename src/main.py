@@ -1,5 +1,7 @@
 import argparse
 import os
+from data_loader import load_data
+from train import train
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -182,8 +184,8 @@ def main():
 
     args = parser.parse_args()
     print_setting(args)
-    #data = load_data(args)
-    #train(args, data)
+    data = load_data(args)
+    train(args, data)
 
 
 if __name__ == "__main__":

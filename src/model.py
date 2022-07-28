@@ -144,7 +144,7 @@ class PathCon(nn.Module):
 
         return edges_list, masks
 
-    def _get_neighbor_aggregators(self, relations, entity_pairs, train_edges):
+    def _get_neighbor_aggregators(self):
         aggregators = []    # store all aggregators
 
         if self.context_hops == 1:

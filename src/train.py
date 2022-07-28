@@ -4,7 +4,7 @@ from collections import defaultdict
 from model import PathCon
 from utils import sparse_to_tuple
 
-ㅎ
+
 args = None
 
 def train(model_args, data):
