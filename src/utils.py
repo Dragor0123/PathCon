@@ -56,10 +56,10 @@ def bfs(head, tails, e2re, max_path_len):
             path = all_paths[p]
             last_entity_in_path = path[-1][1]
             entities_in_path = set([head] + [i[1] for i in path])
-            for edge in e2re[last_entity_in_path]:
+            for edge_entity in e2re[last_entity_in_path]:
                 # append (relation, entity) to the path if the new entity does not appear in this path before.
-                if edge[1] not in entities_in_path:
-                    all_paths.append(path + [edge])
+                if edge_entity[1] not in entities_in_path:
+                    all_paths.append(path + [edge_entity])
             p += 1
 
     ht2paths = defaultdict(set)
