@@ -40,8 +40,8 @@ def count_all_paths(inputs):
     ht2paths = {}
     for i, (head, tails) in enumerate(head2tails):
         ht2paths.update(bfs(head, tails, e2re, max_path_len))
-        print(f'pid {pid}: {i:3} / {len(head2tails):2}')
-    print(f'pid {pid}  done')
+        #print(f'pid {pid}: {i:3} / {len(head2tails):2}')
+    #print(f'pid {pid}  done')
     return ht2paths
 
 
