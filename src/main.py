@@ -39,6 +39,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cuda', default=False, help='use gpu', action='store_true')
 
+    '''
     # ===== FB15k ===== #
     parser.add_argument('--dataset', type=str, default='FB15k', help='dataset name')
     parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
@@ -60,7 +61,7 @@ def main():
     parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
     parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-
+    '''
 
     '''
     # ===== FB15k-237 ===== #
@@ -110,7 +111,7 @@ def main():
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
     '''
 
-    '''
+
     # ===== wn18rr ===== #
     parser.add_argument('--dataset', type=str, default='wn18rr', help='dataset name')
     parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
@@ -132,7 +133,6 @@ def main():
     parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
     parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
 
     '''
     # ===== NELL995 ===== #
@@ -186,7 +186,6 @@ def main():
     print_setting(args)
     data = load_data(args)
     train(args, data)
-
 
 if __name__ == "__main__":
     main()

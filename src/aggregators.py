@@ -92,7 +92,7 @@ class CrossAggregator(Aggregator):
         output = output.view([-1, self.input_dim * self.input_dim])
         if self.self_included:
             self_vectors = self_vectors.view([-1, self.input_dim])  # (-1, self.input_dim)
-            output = torch.cat([self.vectors, output], dim=-1)      # (-1, input_dim * input_dim + input_dim)
+            output = torch.cat([self_vectors, output], dim=-1)      # (-1, input_dim * input_dim + input_dim)
         output = self.layer(output)     # (-1, output_dim)
         output = output.view([self.batch_size, -1, self.output_dim])
 

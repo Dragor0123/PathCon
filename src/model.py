@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from aggregators import ConcatAggregator
+from aggregators import ConcatAggregator, MeanAggregator, CrossAggregator
 
 
 class PathCon(nn.Module):
