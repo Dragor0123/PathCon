@@ -31,13 +31,13 @@ class PathCon(nn.Module):
                 else torch.LongTensor(params_for_neighbors[2])
             self.neighbor_samples = args.neighbor_samples
             self.context_hops = args.context_hops
-            self.neighbor_agg = ConcatAggregator
-            # if args.neighbor_agg == 'mean':
-            #     self.neighbor_agg = MeanAggregator
-            # elif args.neighbor_agg == 'concat':
-            #     self.neighbor_agg = ConcatAggregator
-            # elif args.neighbor_agg == 'cross':
-            #     self.neighbor_agg = CrossAggregator
+
+            if args.neighbor_agg == 'mean':
+                self.neighbor_agg = MeanAggregator
+            elif args.neighbor_agg == 'concat':
+                self.neighbor_agg = ConcatAggregator
+            elif args.neighbor_agg == 'cross':
+                self.neighbor_agg = CrossAggregator
 
         if self.use_path:
             self.path_type = args.path_type
