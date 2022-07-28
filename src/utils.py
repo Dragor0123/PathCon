@@ -24,7 +24,7 @@ def get_params_for_mp(n_triples):
 
     range_list = []
     start = 0
-    # n_triples : 100, n_cores : 4, avg : 25 일때, 0, 1번은 avg+1, 나머지는 avg만큼 할당
+    # n_triples : 102, n_cores : 4, avg : 25 일때, 0, 1번은 avg+1, 나머지는 avg만큼 할당
     for i in range(n_cores):
         num = avg + 1 if i < n_triples - avg * n_cores else avg
         range_list.append([start, start + num])

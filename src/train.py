@@ -7,6 +7,7 @@ from utils import sparse_to_tuple
 
 args = None
 
+
 def train(model_args, data):
     global args, model, sess
     args = model_args
@@ -56,7 +57,6 @@ def train(model_args, data):
     print('start training ...')
 
     for step in range(args.epoch):
-
         # shuffle training data
         index = np.arange(len(train_labels))
         np.random.shuffle(index)
