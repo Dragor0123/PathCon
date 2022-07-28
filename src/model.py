@@ -86,6 +86,64 @@ class PathCon(nn.Module):
 
         self._call_model()
 
+    def _call_model(self):
+        self.scores = 0.
+        if self.use_context:
+            edge_list, mask_list = self._get_neighbors_and_masks(self.labels, self.entity_pairs, self.train_edges)
+            self.aggregated_neighbors = self._aggregate_neighbors(edge_list, mask_list)
+            self.scores += self.aggregated_neighbors
+
+        if self.use_path:
+            if self.path_type == 'embedding':
+                self.scores += self.layer(self.path_features)
+            elif self.path_type == 'rnn':
+                rnn_output = self._rnn(self.path_ids)
+                self.scores += self._aggregate_paths(rnn_output)
+
+        self.scores_normalized = torch.sigmoid(self.scores) # F.sigmoid()
+
+    def _build_relation_feature(self):
+        if self.feature_type == 'id':
+            self.relation_dim = self.n_relations
+            self.relation_features = torch.eye(self.n_relations).cuda() if self.use_gpu \
+                else torch.eye(self.n_relations)
+        elif self.feature_type == 'bow':    #cbow model
+            bow = np.load('../data/' + self.dataset + '/bow.npy')
+            self.relation_dim = bow.shape[1]
+            self.relation_features = torch.tensor(bow).cuda() if self.use_gpu \
+                else torch.tensor(bow)
+        elif self.feature_type == 'bert':
+            bert = np.load('../data/' + self.dataset + '/' + self.feature_type + '.npy')
+            self.relation_dim = bert.shape[1]
+            self.relation_features = torch.tensor(bert).cuda() if self.use_gpu \
+                else torch.tensor(bert)
+
+        # the feature of the last relation (the null relation) is a zero vector
+        self.relation_features = torch.cat([self.relation_features,
+                                        torch.zeros([1, self.relation_dim]).cuda() if self.use_gpu \
+                                            else torch.zeros([1, self.relation_dim])], dim=0)
+
+    def _get_neighbors_and_masks(self, relations, entity_pairs, train_edges):
+        edges_list = [relations]
+        masks = []
+        train_edges = torch.unsqueeze(train_edges, -1)  # (batch_size, 1)
+
+        for i in range(self.context_hops):
+            if i == 0:
+                neighbor_entities = entity_pairs
+            else:
+                neighbor_entities = torch.index_select(self.edge2entities, 0,
+                                                       edges_list[-1].view(-1)).view([self.batch_size, -1])
+            neighbor_edges = torch.index_select(self.entity2edges, 0,
+                                                neighbor_entities.view(-1)).view([self.batch_size, -1])
+            edges_list.append(neighbor_edges)
+
+            mask = neighbor_edges - train_edges     # (batch_size, -1)
+            mask = (mask != 0).float()
+            masks.append(mask)
+
+        return edges_list, masks
+
     def _get_neighbor_aggregators(self, relations, entity_pairs, train_edges):
         aggregators = []    # store all aggregators
 
@@ -113,6 +171,72 @@ class PathCon(nn.Module):
                                                  output_dim=self.n_relations,
                                                  self_included=False))
             return aggregators
+
+    def _aggregate_neighbors(self, edge_list, mask_list):
+        """ translate edges IDs to relation IDs, then to features """
+        edge_vectors = [torch.index_select(self.relation_features, 0, edge_list[0])]
+        for edges in edge_list[1:]:
+            relations = torch.index_select(self.edge2relation, 0,
+                                           edges.view(-1)).view(list(edges.shape) + [-1])
+            edge_vectors.append(torch.index_select(self.relation_features, 0,
+                                                   relations.view(-1)).view(list(relations.shape) + [-1]))
+        """
+        shape of edge vectors:
+        [[batch_size, relation_dim],
+          [batch_size, 2 * neighbor_samples, relation_dim],
+          [batch_size, (2 * neighbor_samples) ^ 2, relation_dim],
+          ...]
+        """
+        for i in range(self.context_hops):
+            aggregator = self.aggregators[i]
+            edge_vectors_next_iter = []
+            neighbors_shape = [self.batch_size, -1, 2, self.neighbor_samples, aggregator.input_dim]
+            masks_shape = [self.batch_size, -1, 2, self.neighbor_samples, 1]
+
+            for hop in range(self.context_hops - i):
+                vector = aggregator(self_vectors = edge_vectors[hop],
+                                    neighbor_vectors = edge_vectors[hop + 1].view(neighbors_shape),
+                                    masks = mask_list[hop].view(masks_shape))
+                edge_vectors_next_iter.append(vector)
+            edge_vectors = edge_vectors_next_iter
+
+        # edge_vectors[0] : [self.batch_size, 1, self.n_relations]
+        res = edge_vectors[0].view([self.batch_size, self.n_relations])
+        return res
+
+    def _rnn(self, path_ids):
+        path_ids = path_ids.view([self.batch_size * self.path_samples])     # (batch_size * path_samples)
+        # (batch_size * path_samples, max_path_len)
+        paths = torch.index_select(self.id2path, 0,
+                                   path_ids.view(-1)).view(list(path_ids.shape) + [-1])
+        # (batch_size * path_samples, max_path_len, relation_dim)
+        path_features = torch.index_select(self.relation_features, 0,
+                                           paths.view(-1)).view(list(paths.shape) + [-1])
+        lengths = torch.index_select(self.id2length, 0, path_ids)   # (batch_size * path_samples)
+
+        output, _ = self.rnn(path_features)
+        output = torch.cat([torch.zeros(output.shape[0], 1, output.shape[2]).cuda() if self.use_gpu \
+                                else torch.zeros(output.shape[0], 1, output.shape[2]), output], dim=1)
+        output = output.gather(1, lengths.unsqueeze(-1).unsqueeze(-1).expand(output.shape[0], 1, output.shape[-1]))
+        output = self.layer(output)
+        output = output.view([self.batch_size, self.path_samples, self.n_relations])
+        return output
+
+    def _aggregate_paths(self, inputs):
+        # input shape: [batch_size, path_samples, n_relations]
+        if self.path_agg == 'mean':
+            output = torch.mean(inputs, dim=1)  # (batch_size, n_relations)
+        elif self.path_agg == 'att':
+            assert self.use_context
+            aggregated_neighbors = self.aggregated_neighbors.unsqueeze(1)   # (batch_size, 1, n_relations)
+            attention_weights = torch.sum(aggregated_neighbors * inputs, dim=-1)    # (batch_size, path_samples)
+            attention_weights = F.softmax(attention_weights, dim=-1)    # (batch_size, path_samples)
+            attention_weights = attention_weights.unsqueeze(-1)     # (batch_size, path_samples, 1)
+            output = torch.sum(attention_weights * inputs, dim=1)   # (batch_size, n_relations)
+        else:
+            raise ValueError('unknown path_agg')
+
+        return output
 
     @staticmethod
     def train_step(model, optimizer, batch):
