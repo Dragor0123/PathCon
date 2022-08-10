@@ -2,6 +2,10 @@
 
 PathCon implementation by pytorch for personal practice.
 
+**Running the Code**
+
+$ python main.py --cuda
+
 
 **Required packages**
 
