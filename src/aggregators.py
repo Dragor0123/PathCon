@@ -15,7 +15,7 @@ class Aggregator(nn.Module):
     def forward(self, self_vectors, neighbor_vectors, masks):
         # self_vectors: (batch_size, -1, input_dim)
         # neighbor_vectors: (batch_size, -1, 2, n_neighbor, input_dim)
-        # masks: (batch_size, -1, 2, n_neighbor, 1)entity_vectors = tor
+        # masks: (batch_size, -1, 2, n_neighbor, 1)
         entity_vectors = torch.mean(neighbor_vectors * masks, dim=-2)
         outputs = self._call(self_vectors, entity_vectors)
         return outputs

@@ -113,6 +113,7 @@ def one_hot_path_id(train_paths, valid_paths, test_paths, path_dict):
     return [get_sparse_feature_matrix(bop_list, len(path_dict)) for bop_list in res]
 
 
+# only used for RNN
 def sample_paths(train_paths, valid_paths, test_paths, path_dict, path_samples):
     res = []
     for data in [train_paths, valid_paths, test_paths]:

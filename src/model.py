@@ -69,7 +69,7 @@ class PathCon(nn.Module):
             elif self.path_type == 'rnn':
                 self.rnn = nn.LSTM(input_size=self.relation_dim, hidden_size=self.hidden_dim, batch_first=True)
                 self.layer = nn.Linear(self.hidden_dim, self.n_relations)
-                self.init.xavier_uniform_(self.layer.weight)
+                nn.init.xavier_uniform_(self.layer.weight)
 
     def forward(self, batch):
         if self.use_context:
