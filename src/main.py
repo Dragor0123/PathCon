@@ -38,8 +38,7 @@ def print_setting(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cuda', default=False, help='use gpu', action='store_true')
-
-    '''
+    #'''
     # ===== FB15k ===== #
     parser.add_argument('--dataset', type=str, default='FB15k', help='dataset name')
     parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
@@ -57,11 +56,11 @@ def main():
 
     # settings for relational path
     parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=2, help='max length of a path')
+    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')             # default=2
     parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
     parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
+    #'''
 
     '''
     # ===== FB15k-237 ===== #
@@ -99,7 +98,7 @@ def main():
 
     # settings for relational context
     parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=3, help='number of context hops')
+    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')           # default=3
     parser.add_argument('--neighbor_samples', type=int, default=16, help='number of sampled neighbors for one hop')
     parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')       #default='cross'
 
@@ -123,7 +122,7 @@ def main():
 
     # settings for relational context
     parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=3, help='number of context hops')
+    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')           # default=3
     parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
     parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')      #default='cross'
 
@@ -159,7 +158,7 @@ def main():
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
     '''
 
-    #'''
+    '''
     # ===== DDB14 ===== #
     parser.add_argument('--dataset', type=str, default='DDB14', help='dataset name')
     parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
@@ -171,7 +170,7 @@ def main():
 
     # settings for relational context
     parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=3, help='number of context hops')
+    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')       # default=3
     parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
     parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')      #default='cross'
 
@@ -181,7 +180,7 @@ def main():
     parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
     parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
     parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    #'''
+    '''
 
     args = parser.parse_args()
     print_setting(args)
