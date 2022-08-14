@@ -4,8 +4,8 @@ PathCon implementation by pytorch for personal practice.
 
 **Running the Code**
 
-$ python main.py --cuda
-
+$ python main.py --cuda  
+$ python main.py --cuda --max_path_len=3 --neighbor_agg=concat 
 
 **Required packages**
 

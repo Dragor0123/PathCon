@@ -98,8 +98,9 @@ def train(model_args, data):
 
     # show final evaluation result
     print('final results\n%s' % final_res)
-    avg_time_per_epoch = sum(time_list)/len(time_list)
-    print('avg time per epoch : %.4f' % (avg_time_per_epoch))
+    avg_time_per_epoch, max_time_per_epoch = sum(time_list)/len(time_list), max(time_list)
+    print('avg-time : %.4f\t max-time : %.4f  per epoch' % (avg_time_per_epoch, max_time_per_epoch))
+
 
 def get_feed_dict(entity_pairs, train_edges, paths, labels, start, end):
     feed_dict = {}
