@@ -5,6 +5,7 @@ import numpy as np
 from collections import defaultdict
 from sklearn.feature_extraction.text import CountVectorizer
 from utils import count_all_paths_with_mp, count_paths, get_path_dict_and_length, one_hot_path_id, sample_paths
+import time
 
 
 entity2edge_set = defaultdict(set)  # entity id -> set of (both incoming and outgoing) edges connecting to this entity
@@ -126,6 +127,7 @@ def get_paths(train_triplets, valid_triplets, test_triplets):
         valid_paths = pickle.load(open(_get_pickle_path(directory, 'valid', length), 'rb'))
         test_paths = pickle.load(open(_get_pickle_path(directory, 'test', length), 'rb'))
     else:
+        t_start = time.time()
         print('counting paths from head to tail ...')
         head2tails = get_h2t(train_triplets, valid_triplets, test_triplets)
         ht2paths = count_all_paths_with_mp(e2re, args.max_path_len,
@@ -134,6 +136,8 @@ def get_paths(train_triplets, valid_triplets, test_triplets):
         train_paths = count_paths(train_triplets, ht2paths, train_set)
         valid_paths = count_paths(valid_triplets, ht2paths, train_set)
         test_paths = count_paths(test_triplets, ht2paths, train_set)
+        paths_load_time = time.time() - t_start
+        print(f'paths loading time : {paths_load_time:.5f}\n')
 
         print('dumping paths to files ...')
         pickle.dump(train_paths, open(_get_pickle_path(directory, 'train', length), 'wb'))

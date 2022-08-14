@@ -3,6 +3,7 @@ import numpy as np
 from collections import defaultdict
 from model import PathCon
 from utils import sparse_to_tuple
+import time
 
 
 args = None
@@ -55,7 +56,7 @@ def train(model_args, data):
     final_res = None  # acc, mrr, mr, hit1, hit3, hit5
 
     print('start training ...')
-
+    time_list = []
     for step in range(args.epoch):
         # shuffle training data
         index = np.arange(len(train_labels))
@@ -67,6 +68,7 @@ def train(model_args, data):
             train_paths = train_paths[index]
         train_labels = train_labels[index]
 
+        t_start = time.time()
         # training
         s = 0
         while s + args.batch_size <= len(train_labels):
@@ -79,10 +81,11 @@ def train(model_args, data):
         train_acc, _ = evaluate(train_entity_pairs, train_paths, train_labels)
         valid_acc, _ = evaluate(valid_entity_pairs, valid_paths, valid_labels)
         test_acc, test_scores = evaluate(test_entity_pairs, test_paths, test_labels)
-
+        epoch_time = time.time() - t_start
+        time_list.append(epoch_time)
         # show evaluation result for current epoch
         current_res = 'acc: %.4f' % test_acc
-        print('train acc: %.4f   valid acc: %.4f   test acc: %.4f' % (train_acc, valid_acc, test_acc))
+        print('train acc: %.4f   valid acc: %.4f   test acc: %.4f   time : %.4f' % (train_acc, valid_acc, test_acc, epoch_time))
         mrr, mr, hit1, hit3, hit5 = calculate_ranking_metrics(test_triplets, test_scores, true_relations)
         current_res += '   mrr: %.4f   mr: %.4f   h1: %.4f   h3: %.4f   h5: %.4f' % (mrr, mr, hit1, hit3, hit5)
         print('           mrr: %.4f   mr: %.4f   h1: %.4f   h3: %.4f   h5: %.4f' % (mrr, mr, hit1, hit3, hit5))
@@ -95,7 +98,8 @@ def train(model_args, data):
 
     # show final evaluation result
     print('final results\n%s' % final_res)
-
+    avg_time_per_epoch = sum(time_list)/len(time_list)
+    print('avg time per epoch : %.4f' % (avg_time_per_epoch))
 
 def get_feed_dict(entity_pairs, train_edges, paths, labels, start, end):
     feed_dict = {}
