@@ -2,7 +2,7 @@ import numpy as np
 import multiprocessing as mp
 import scipy.sparse as sp
 from collections import defaultdict
-
+import math
 
 def count_all_paths_with_mp(e2re, max_path_len, head2tails):
     n_cores, pool, range_list = get_params_for_mp(len(head2tails))
@@ -144,3 +144,17 @@ def sparse_to_tuple(sparse_matrix):
     values = sparse_matrix.data
     shape = sparse_matrix.shape
     return indices, values, shape
+
+
+def get_mean(data):
+    return sum(data) / len(data)
+
+
+def get_variance(data):
+    mean = mean(data)
+    devs = [pow(var - mean, __exp=2) for var in data]
+    return sum(devs) / len(data)
+
+
+def get_std_dev(data):
+    return math.sqrt(get_variance(data))
