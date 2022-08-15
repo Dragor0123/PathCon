@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 from collections import defaultdict
 from sklearn.feature_extraction.text import CountVectorizer
-from utils import count_all_paths_with_mp, count_paths, get_path_dict_and_length, one_hot_path_id, sample_paths
+from utils import count_all_paths_with_mp, count_paths, get_path_dict_and_length, one_hot_path_id, sample_paths #count_all_paths_with_1core
 from utils import get_mean, get_variance, get_std_dev, paths_cnt_list
 import time
 
@@ -127,17 +127,24 @@ def get_paths(train_triplets, valid_triplets, test_triplets):
         train_paths = pickle.load(open(train_file_paths, 'rb'))
         valid_paths = pickle.load(open(_get_pickle_path(directory, 'valid', length), 'rb'))
         test_paths = pickle.load(open(_get_pickle_path(directory, 'test', length), 'rb'))
+        # -- counting metapaths
+        # total_paths = train_paths + valid_paths + test_paths
+        print_cnt_paths(train_paths, paths_cnt_list_from_lol)
+        # ---------------------------
     else:
         t_start = time.time()
         print('counting paths from head to tail ...')
         head2tails = get_h2t(train_triplets, valid_triplets, test_triplets)
+        #count_all_paths_with_mp
         ht2paths = count_all_paths_with_mp(e2re, args.max_path_len,
                                            [(k, v) for k, v in head2tails.items()])
         # -- counting metapaths
-        path_cnt_per_pair = paths_cnt_list(ht2paths)
-        mean_paths, sd_paths = get_mean(path_cnt_per_pair), get_std_dev(path_cnt_per_pair)
-        print(f'hops: {args.context_hops}, max_len: {args.max_path_len},  mean paths: {mean_paths}, sd_paths :{sd_paths}')
-        # ---------------------------
+        print_cnt_paths(ht2paths, paths_cnt_list)
+        # -- counting metapaths
+        # path_cnt_per_pair = paths_cnt_list(ht2paths)
+        # mean_paths, sd_paths = get_mean(path_cnt_per_pair), get_std_dev(path_cnt_per_pair)
+        # print(f'hops: {args.context_hops}, max_len: {args.max_path_len},  mean paths: {mean_paths}, sd_paths :{sd_paths}')
+        #---------------------------
         train_set = set(train_triplets)
         train_paths = count_paths(train_triplets, ht2paths, train_set)
         valid_paths = count_paths(valid_triplets, ht2paths, train_set)
@@ -202,3 +209,19 @@ def load_data(model_args):
         path_params = None
 
     return triplets, paths, len(relation_dict), neighbor_params, path_params
+
+
+def paths_cnt_list_from_lol(lol):
+    cnt_list = []
+    for paths in lol:
+        cnt = len(paths)
+        if cnt < 2:
+            continue
+        cnt_list.append(cnt)
+    return cnt_list
+
+
+def print_cnt_paths(seq, paths_cnt_fn):
+    cnt_per_pair_list = paths_cnt_fn(seq)
+    mean_paths, sd_paths = get_mean(cnt_per_pair_list), get_std_dev(cnt_per_pair_list)
+    print(f'max_len: {args.max_path_len},  mean paths: {mean_paths}, sd_paths :{sd_paths}')

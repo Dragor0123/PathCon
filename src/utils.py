@@ -4,6 +4,7 @@ import scipy.sparse as sp
 from collections import defaultdict
 import math
 
+
 def count_all_paths_with_mp(e2re, max_path_len, head2tails):
     n_cores, pool, range_list = get_params_for_mp(len(head2tails))
     results = pool.map(count_all_paths, zip([e2re] * n_cores,
@@ -165,7 +166,8 @@ def get_std_dev(data):
 def paths_cnt_list(ht2paths):
     li = []
     for _, pathset in ht2paths.items():
-        if len(pathset) < 2:
+        cnt = len(pathset)
+        if cnt < 2:
             continue
-        li.append(len(pathset))
+        li.append(cnt)
     return li
