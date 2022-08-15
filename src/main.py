@@ -37,150 +37,147 @@ def print_setting(args):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', dest='dataset', type=str, default='wn18', help='dataset name')
+    args = parser.parse_known_args()[0]
+    print(args.dataset)
     parser.add_argument('--cuda', default=False, help='use gpu', action='store_true')
-    #'''
-    # ===== FB15k ===== #
-    parser.add_argument('--dataset', type=str, default='FB15k', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
+    if args.dataset == 'FB15k':
+        # ===== FB15k ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
+        parser.add_argument('--neighbor_samples', type=int, default=32, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')
 
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
-    parser.add_argument('--neighbor_samples', type=int, default=32, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')  # default=2
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
+    elif args.dataset == 'FB15k-237':
+        # ===== FB15k-237 ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
 
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')             # default=2
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    #'''
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
+        parser.add_argument('--neighbor_samples', type=int, default=32, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')
 
-    '''
-    # ===== FB15k-237 ===== #
-    parser.add_argument('--dataset', type=str, default='FB15k-237', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
+    elif args.dataset == 'wn18':
+        # ===== wn18 ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
 
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
-    parser.add_argument('--neighbor_samples', type=int, default=32, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')  # default=3
+        parser.add_argument('--neighbor_samples', type=int, default=16, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')  # default='cross'
 
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
+    elif args.dataset == 'wn18rr':
+        # ===== wn18rr ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
 
-    '''
-    # ===== wn18 ===== #
-    parser.add_argument('--dataset', type=str, default='wn18', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')  # default=3
+        parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')  # default='cross'
 
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')           # default=3
-    parser.add_argument('--neighbor_samples', type=int, default=16, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')       #default='cross'
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')  # default=4
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
+    elif args.dataset == 'NELL995':
+        # ===== NELL995 ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
 
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
+        parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')
 
-    '''
-    # ===== wn18rr ===== #
-    parser.add_argument('--dataset', type=str, default='wn18rr', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
+    elif args.dataset == 'DDB14':
+        # ===== DDB14 ===== #
+        parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
+        parser.add_argument('--batch_size', type=int, default=128, help='batch size')
+        parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
+        parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
+        parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
+        parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
 
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')           # default=3
-    parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')      #default='cross'
+        # settings for relational context
+        parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
+        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')  # default=3
+        parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
+        parser.add_argument('--neighbor_agg', type=str, default='concat',
+                            help='neighbor aggregator: mean, concat, cross')  # default='cross'
 
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')     #default=4
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
-
-    '''
-    # ===== NELL995 ===== #
-    parser.add_argument('--dataset', type=str, default='NELL995', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
-
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')
-    parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')
-
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
-
-    '''
-    # ===== DDB14 ===== #
-    parser.add_argument('--dataset', type=str, default='DDB14', help='dataset name')
-    parser.add_argument('--epoch', type=int, default=20, help='number of epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size')
-    parser.add_argument('--dim', type=int, default=64, help='hidden dimension')
-    parser.add_argument('--l2', type=float, default=1e-7, help='l2 regularization weight')
-    parser.add_argument('--lr', type=float, default=5e-3, help='learning rate')
-    parser.add_argument('--feature_type', type=str, default='id', help='type of relation features: id, bow, bert')
-
-    # settings for relational context
-    parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-    parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')       # default=3
-    parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
-    parser.add_argument('--neighbor_agg', type=str, default='concat', help='neighbor aggregator: mean, concat, cross')      #default='cross'
-
-    # settings for relational path
-    parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-    parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')     # default=4
-    parser.add_argument('--path_type', type=str, default='embedding', help='path representation type: embedding, rnn')
-    parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
-    parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
-    '''
+        # settings for relational path
+        parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
+        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')  # default=4
+        parser.add_argument('--path_type', type=str, default='embedding',
+                            help='path representation type: embedding, rnn')
+        parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
+        parser.add_argument('--path_agg', type=str, default='att', help='path aggregator if using rnn: mean, att')
 
     args = parser.parse_args()
     print_setting(args)
