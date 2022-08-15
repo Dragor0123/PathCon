@@ -37,9 +37,9 @@ def print_setting(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', dest='dataset', type=str, default='wn18', help='dataset name')
+    parser.add_argument('--dataset', dest='dataset', type=str, default='wn18rr', help='dataset name')
     args = parser.parse_known_args()[0]
-    print(args.dataset)
+
     parser.add_argument('--cuda', default=False, help='use gpu', action='store_true')
     if args.dataset == 'FB15k':
         # ===== FB15k ===== #
@@ -97,7 +97,7 @@ def main():
 
         # settings for relational context
         parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')  # default=3
+        parser.add_argument('--context_hops', type=int, default=3, help='number of context hops')  # default=3
         parser.add_argument('--neighbor_samples', type=int, default=16, help='number of sampled neighbors for one hop')
         parser.add_argument('--neighbor_agg', type=str, default='concat',
                             help='neighbor aggregator: mean, concat, cross')  # default='cross'

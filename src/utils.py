@@ -35,6 +35,8 @@ def get_params_for_mp(n_triples):
 
 # input: [(h1, {t1, t2 ...}), (h2, {t3 ...}), ...]
 # output: {(h1, t1): paths, (h1, t2): paths, (h2, t3): paths, ...}
+#         e.g., {(37271, 10818) : {(0,), (1, 3, 1)}, (37271, 12551) : {(1,), (1, 1, 1,)}, ...}
+#         value's element(set)'s each number means relation type.
 def count_all_paths(inputs):
     e2re, max_path_len, head2tails, pid = inputs
     ht2paths = {}
@@ -151,10 +153,19 @@ def get_mean(data):
 
 
 def get_variance(data):
-    mean = mean(data)
-    devs = [pow(var - mean, __exp=2) for var in data]
+    mean = get_mean(data)
+    devs = [pow(var - mean, exp=2) for var in data]
     return sum(devs) / len(data)
 
 
 def get_std_dev(data):
     return math.sqrt(get_variance(data))
+
+
+def paths_cnt_list(ht2paths):
+    li = []
+    for _, pathset in ht2paths.items():
+        if len(pathset) < 2:
+            continue
+        li.append(len(pathset))
+    return li

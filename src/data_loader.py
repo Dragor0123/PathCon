@@ -5,6 +5,7 @@ import numpy as np
 from collections import defaultdict
 from sklearn.feature_extraction.text import CountVectorizer
 from utils import count_all_paths_with_mp, count_paths, get_path_dict_and_length, one_hot_path_id, sample_paths
+from utils import get_mean, get_variance, get_std_dev, paths_cnt_list
 import time
 
 
@@ -132,6 +133,11 @@ def get_paths(train_triplets, valid_triplets, test_triplets):
         head2tails = get_h2t(train_triplets, valid_triplets, test_triplets)
         ht2paths = count_all_paths_with_mp(e2re, args.max_path_len,
                                            [(k, v) for k, v in head2tails.items()])
+        # -- counting metapaths
+        path_cnt_per_pair = paths_cnt_list(ht2paths)
+        mean_paths, sd_paths = get_mean(path_cnt_per_pair), get_std_dev(path_cnt_per_pair)
+        print(f'hops: {args.context_hops}, max_len: {args.max_path_len},  mean paths: {mean_paths}, sd_paths :{sd_paths}')
+        # ---------------------------
         train_set = set(train_triplets)
         train_paths = count_paths(train_triplets, ht2paths, train_set)
         valid_paths = count_paths(valid_triplets, ht2paths, train_set)
