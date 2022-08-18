@@ -155,7 +155,7 @@ def get_mean(data):
 
 def get_variance(data):
     mean = get_mean(data)
-    devs = [pow(var - mean, exp=2) for var in data]
+    devs = [pow(var - mean, 2) for var in data]
     return sum(devs) / len(data)
 
 

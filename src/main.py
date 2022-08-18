@@ -58,7 +58,7 @@ def main():
 
         # settings for relational path
         parser.add_argument('--use_path', type=bool, default=True, help='whether use relational path')
-        parser.add_argument('--max_path_len', type=int, default=3, help='max length of a path')  # default=2
+        parser.add_argument('--max_path_len', type=int, default=2, help='max length of a path')  # default=2
         parser.add_argument('--path_type', type=str, default='embedding',
                             help='path representation type: embedding, rnn')
         parser.add_argument('--path_samples', type=int, default=8, help='number of sampled paths if using rnn')
@@ -120,7 +120,7 @@ def main():
 
         # settings for relational context
         parser.add_argument('--use_context', type=bool, default=True, help='whether use relational context')
-        parser.add_argument('--context_hops', type=int, default=2, help='number of context hops')  # default=3
+        parser.add_argument('--context_hops', type=int, default=3, help='number of context hops')  # default=3
         parser.add_argument('--neighbor_samples', type=int, default=8, help='number of sampled neighbors for one hop')
         parser.add_argument('--neighbor_agg', type=str, default='concat',
                             help='neighbor aggregator: mean, concat, cross')  # default='cross'
